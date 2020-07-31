@@ -1,55 +1,85 @@
-# cloudflare-jwt-verifier
-Cloudflare worker that verifies incoming requests have a valid JSON Web Token (JWT) before the request is forwarded on to your infrastructure
+# Approov Quick Start - Cloudflare Worker
 
-This use case is in conjunction with the [Approov](https://approov.io) service, although it could be modified to verify any JWT.
+Approov Cloudflare worker that verifies incoming requests have a valid [Approov](https://approov.io) JSON Web Token (JWT) before the request is forwarded on to your infrastructure or to a third party service.
+
+Approov is meant to be used when you want to ensure that only your mobile app can talk to your mobile API, and you can learn in more detail how this is done [here](https://approov.io/approov-in-detail.html).
+
 
 ## Why?
 
-There are a couple of reasons for wanting to do this:
- 1. Prevent abuse of your unauthenticated APIs (scraping, malicious activity etc)
- 2. DDoS prevention
+There are a lot of [reasons](https://approov.io/approov-in-detail.html) for wanting to do this, and some of them are:
 
-The Approov service attests that a device is running a legitimate version of your mobile application and hasn't been tampered with:
- 1. If the application looks ok, Approov return a token to your mobile application which is then sent over with any request, is validated server side, and the request is processed
- 2. If the application doesn't look ok, Approov return a legitimate looking token that will fail the server side validation, and the request won't be processed
+* Allow the API to validate the request is from a genuine and untampered version of your mobile app
+* Prevent abuse of your APIs (scraping, malicious activity, etc)
+* No need for an API key in the app
+* [Approov Dynamic Certificate Pinning](https://approov.io/docs/latest/approov-usage-documentation/#approov-dynamic-pinning) with all the benefits from traditional implementations, but without their drawbacks
+* DDoS prevention
 
-This means that only your mobile app can talk to your mobile API.
 
-## Setup
+## How it works?
 
-### Prerequisites
+A brief overview on how the Approov cloud service and the Approov Cloudflare worker fit together from a backend perspective.
 
-Before you begin, you need to install the [Serverless Framework](https://serverless.com/framework/docs/providers/aws/guide/installation/).
+### Approov Cloud Service
 
-### Configuration
+The Approov cloud service attests that a device is running a legitimate version of your mobile application and hasn't been tampered with:
 
-In `serverless.yml`:
- 1. Insert your Cloudflare Account ID and Zone ID in the `provider.config` section
- 1. Add the URL pattern you want to secure in the `functions.jwt-verifier.events.http` section
+1. If the application looks ok, the Approov cloud service returns a token to your mobile application which is then sent over with any request, and if is validated by the Approov Cloudflare worker the request is processed
+2. If the application doesn't look ok, the Approov cloud service returns a legitimate looking token that will fail the Approov Cloudflare worker validation, and the request won't be processed
 
-Get Approov Secret from approov admin console
 
-In `jwt-verifier.js`:
- 1. Replace 'SECRET HERE' with your Base64 Encoded Approov Secret (although this could work with any JWT secret). _Note to self ... use Cloudflare KV Store to hold this in future ... it didn't work at the time of writing hence the hardcoding_
+### Approov Cloudflare Worker
 
-### Deployment
+The Approov Cloudflare worker ensures the JWT supplied in the `Approov-Token` header is present and valid. The validation is done by using a shared secret only known by the Approov cloud service and the Approov Cloudflare worker.
 
-Add environment variables:
- 1. `export ACCOUNT_ID=CLOUDFLARE_ACCOUNT_ID`
- 2. `export CLOUDFLARE_AUTH_EMAIL=EMAIL_ADDRESS_YOU_USE_TO_LOG_INTO_CLOUDFLARE`
- 3. `export CLOUDFLARE_AUTH_KEY=<GET FROM CLOUDFLARE CONSOLE>` - Get this in "My Profile" -> "Global API Key" in CF Console
+The request is handled as such:
 
-Deploy project to Cloudflare
- * `sls deploy`
+* If the Approov Token is valid, it's passed on using whatever Cloudflare rules you have.
+* If the Approov Token is invalid, a HTTP 401 Unauthorized is returned.
 
-You should now be able to see the worker in the "Workers" tab of the Cloudflare console.
+You can choose to log JWT verification failures, but that typically has to go to another provider or you can use the Cloudflare `wrangler tail` command to see the logs from your computer, but that requires a subscription of another Cloudflare service.
 
-## Usage
 
-Clients send over Json Web Tokens in a field called *Device-Token* (this can be changed in `jwt-verifier.js`).
+## Approov Token Quick Start
 
-The Cloudflare worker ensures the JWT supplied in the Device-Token header is present and valid (using a shared secret).
- * If the JWT is valid, it's passed on using whatever Cloudflare rules you have
- * If the JWT is invalid, a HTTP 403 Forbidden is returned
+Please follow this [guide](/workers/approov-token/README.md) for a quick start on integrating Approov in your current Cloudflare infrastructure.
 
-You can choose to log JWT verification failures, but that typically has to go to another provider as Cloudflare doesn't have worker logging (yet)
+
+## Approov Token Binding Quick Start
+
+The [Approov Token Binding](https://approov.io/docs/latest/approov-usage-documentation/#token-binding) is an advanced feature of Approov that lets you to bind another header in the request with the Approov Token itself. For example the Authorization header.
+
+Please follow this [guide](/workers/approov-token-binding/README.md) for a quick start on integrating Approov in your current Cloudflare infrastructure with token binding support.
+
+
+## API Requests with Postman
+
+A ready to use Postman collection can be found [here](https://raw.githubusercontent.com/approov/postman-collections/master/shapes-api/shapes-api-gateway-proxy.postman_collection.json), that contains a very comprehensive set of example requests for valid and invalid Approov Tokens, with and without token binding.
+
+> **NOTE:** The Postman collection contains Approov tokens signed with a dummy secret that was generated with `openssl rand -base64 64 | tr -d '\n'; echo`, therefore not a production secret retrieved with `approov secret -get base64`, thus in order to use it you need to set the `APPROOV_BASE64_SECRET` in Cloudflare, as explained in the quick starts, with the value of `h+CX0tOzdAAR9l15bWAqvq7w9olk66daIH+Xk+IAHhVVHszjDzeGobzNnqyRze3lw/WVyWrc2gZfh3XXfBOmww==`.
+
+
+## Troubleshooting
+
+* The first thing to do is to switch Cloudflare to development mode in order to bypass cache and always hit the origin server.
+* Check the wildcards `*` in your route pattern, and ensure they go by the rules defined [here](https://developers.cloudflare.com/workers/about/routes/).
+* Run the `wrangler dev` command to have your code running at http://localhost:8787, and be able to see the errors in the console.
+
+
+## Useful Links
+
+### Cloudflare
+
+#### Development
+
+* [Debugging Tips](https://developers.cloudflare.com/workers/about/tips/debugging/)
+* [Debugging Workers](https://dev.to/cloudflareworkers/announcing-new-tools-to-debug-your-cloudflare-workers-applications-4hn9)
+* [How to log headers](https://developers.cloudflare.com/workers/about/tips/headers/)
+
+#### Logs
+
+* [Tail logs with the wrangler cli](https://developers.cloudflare.com/workers/tooling/wrangler/commands/#tail)
+* [Cloudflare Logs for Entrepise Customers](https://www.cloudflare.com/products/cloudflare-logs/)
+* [Log to ElasticSearch](https://blog.cloudflare.com/logs-from-the-edge/)
+* [Log to Sentry](https://blog.cloudflare.com/dogfooding-edge-workers/)
+* [Log to LogDNA](https://community.cloudflare.com/t/simple-log-collector-worker/40954)

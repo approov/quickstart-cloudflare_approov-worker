@@ -1,0 +1,40 @@
+name = "approov-token_dev"
+type = "webpack"
+workers_dev = false
+webpack_config = "webpack.config.js"
+
+# The Approov integration example uses Cloudflare environment variables. See the
+# .env.example file in the root of the repo, or set them here, but then you need
+# to add this file to .gitignore.
+#account_id = "REPLACE_WITH_YOUR_ACCOUNT_ID"
+#zone_id = "REPLACE_WITH_YOUR_ZONE_ID"
+
+
+[env.test]
+name = "approov-token_test"
+workers_dev = false
+
+# The route pattern your Workers application will be served at
+# @link https://developers.cloudflare.com/workers/about/routes/
+# route = "test.example.com/*" or "test.example.com/v1/*" or "test.example.com/v1/enpoint"
+route = "REPLACE_WITH_YOUR_API_DOMAIN/*"
+
+
+[env.staging]
+name = "approov-token_staging"
+workers_dev = false
+
+# The route pattern your Workers application will be served at
+# @link https://developers.cloudflare.com/workers/about/routes/
+# route = "staging.example.com/*" or "staging.example.com/v1/*" or "staging.example.com/v1/enpoint"
+route = "REPLACE_WITH_YOUR_API_DOMAIN/*"
+
+
+[env.production]
+name = "approov-token"
+workers_dev = false
+
+# The route pattern your Workers application will be served at
+# @link https://developers.cloudflare.com/workers/about/routes/
+# route = "example.com/*" or "example.com/v1/*" or "example.com/v1/enpoint"
+route = "REPLACE_WITH_YOUR_API_DOMAIN/*"
