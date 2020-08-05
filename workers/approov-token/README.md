@@ -42,7 +42,7 @@ export APPROOV_MANAGEMENT_TOKEN=$(cat /path/to/development.token)
 
 ## Approov Setup
 
-In order to use Approov with Cloudflare we need to tell Approv what is the API domain being protected. We also need to set in Cloudflare the Approov Base64 encoded secret that will be used to verify the Approov tokens.
+In order to use Approov with Cloudflare we need to tell Approov what is the API domain being protected. We also need to set in Cloudflare the Approov Base64 encoded secret that will be used to verify the Approov tokens.
 
 ### API Domain
 
