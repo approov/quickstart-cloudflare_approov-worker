@@ -155,10 +155,32 @@ HTTP/2 200
 
 #### With an Invalid Approov Token
 
+##### No Authorization Token
+
 Let's just remove the Authorization request from the request:
 
 ```
 curl -i --request GET 'https://your.api.domain.com/v1/shapes' \
+  --header 'Approov-Token: APPROOV_TOKEN_EXAMPLE_HERE'
+```
+
+The request should fail:
+
+```text
+HTTP/2 401
+
+...
+
+{"error":"Unauthorized request."}
+```
+
+##### Same Approov Token with a Different Authorization Token
+
+Make the request with the same generated token, but with another random authorization token:
+
+```
+curl -i --request GET 'https://your.api.domain.com/v1/shapes' \
+  --header 'Authorization: Bearer differentrandomauthorizationtoken' \
   --header 'Approov-Token: APPROOV_TOKEN_EXAMPLE_HERE'
 ```
 
