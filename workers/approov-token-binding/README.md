@@ -84,7 +84,6 @@ wrangler publish --env staging
 
 ### Approov Secret for the Approov Worker
 
-
 We need an [Approov secret](https://approov.io/docs/latest/approov-cli-tool-reference/#secret-command) to check the signature in the JWT tokens and we need to use the same one used by the [Approov Cloud service](https://www.approov.io/approov-in-detail.html) to sign the [Approov Tokens](https://www.approov.io/docs/latest/approov-usage-documentation/#approov-tokens) issued to our mobile app.
 
 #### Retrieve the Approov Secret
@@ -117,8 +116,21 @@ wrangler secret put --env staging TOKEN_BINDING_HEADER_NAME
 
 > **NOTE:**: Please bear in mind that you need to create the environment variable `TOKEN_BINDING_HEADER_NAME` for each environment you want to run the Approov token binding worker.
 
+### Logging
 
-#### View the Secrets in the Cloudfare Dashboard
+By default logging is not enabled, thus to enable logging in any environment just set the environment variable `APPROOV_LOGGING_ENABLED` to `true` in Cloudflare, via the Wrangler CLI tool or via the web interface.
+
+Let's see how we can do it with the Wrangler CLI tool.
+
+From the root of `workers/approov-token-binding/` folder run:
+
+```text
+wrangler secret put --env staging APPROOV_LOGGING_ENABLED
+```
+
+> **NOTE:**: Please bear in mind that you need to create the environment variable `APPROOV_LOGGING_ENABLED` for each environment you want to run the Approov token binding worker with logging enabled.
+
+### View the Secrets in the Cloudfare Dashboard
 
 Now you can visit the Cloudflare Dashboard, select the tab **Workers**, click in the worker name, and then select the tab **Settings** to see the `APPROOV_BASE64_SECRET` and `TOKEN_BINDING_HEADER_NAME` listed as environment variables.
 

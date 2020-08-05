@@ -104,11 +104,23 @@ wrangler secret put --env staging APPROOV_BASE64_SECRET
 
 > **NOTE:**: Please bear in mind that you need to create the environment variable `APPROOV_BASE64_SECRET` for each environment you want to run the Approov token worker.
 
+### Logging
 
-#### View the Secrets in the Cloudfare Dashboard
+By default logging is not enabled, thus to enable logging in any environment just set the environment variable `APPROOV_LOGGING_ENABLED` to `true` in Cloudflare, via the Wrangler CLI tool or via the web interface.
+
+Let's see how we can do it with the Wrangler CLI tool.
+
+From the root of `workers/approov-token/` folder run:
+
+```text
+wrangler secret put --env staging APPROOV_LOGGING_ENABLED
+```
+
+> **NOTE:**: Please bear in mind that you need to create the environment variable `APPROOV_LOGGING_ENABLED` for each environment you want to run the Approov token worker with logging enabled.
+
+### View the Secrets in the Cloudfare Dashboard
 
 Now you can visit the Cloudflare Dashboard, select the tab **Workers**, click in the worker name, and then select the tab **Settings** to see the `APPROOV_BASE64_SECRET` listed as an environment variable.
-
 
 ### Test it Works
 
