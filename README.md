@@ -13,7 +13,7 @@ There are a lot of [reasons](https://approov.io/approov-in-detail.html) for want
 * Prevent abuse of your APIs (scraping, malicious activity, etc)
 * No need for an API key in the app
 * [Approov Dynamic Certificate Pinning](https://approov.io/docs/latest/approov-usage-documentation/#approov-dynamic-pinning) with all the benefits from traditional implementations, but without their drawbacks
-* DDoS prevention
+* DDoS prevention at application level with Approov and at network level via Clouflare.
 
 
 ## How it works?
