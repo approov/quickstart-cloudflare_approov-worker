@@ -56,6 +56,9 @@ approov api -add your.api.domain.com
 
 Now that Approov knows the domain for your API you get [dynamic certificate pinning](https://approov.io/docs/latest/approov-usage-documentation/#approov-dynamic-pinning) out of the box for free.
 
+> **NOTE:** By default the pin is extracted from the leaf public key on the TLS certificate, therefore it must be the same across all Cloudflare geographic zones.
+
+
 ## Approov Cloudflare Worker
 
 ### Wrangler Configuration
