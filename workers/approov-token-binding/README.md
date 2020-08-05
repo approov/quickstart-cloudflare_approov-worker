@@ -2,7 +2,7 @@
 
 This quickstart is for developers familiar with Cloudflare who are looking for a quick intro into how they can add [Approov](https://approov.io) into an existing project. Therefore this will guide you through the necessary steps for adding Approov to an existing site being routed through Cloudflare.
 
-We strongly advise you to try first this quickstart in a staging environment, and just follow it in a production environment when you understand how Approov works within your Cloudflare deployment. So after you finish testing the Approov integration in your staging environment, just replace all occurrences of `staging` with `production` to deploy the Approov Cloudflare worker into your CLoudflare production infrastructure in order to protect your API with Approov.
+We strongly advise you to try first this quickstart in a staging environment, and just follow it in a production environment when you understand how Approov works within your Cloudflare deployment. So after you finish testing the Approov integration in your staging environment, just replace all occurrences of `staging` with `production` to deploy the Approov Cloudflare worker into your Cloudflare production infrastructure in order to protect your API with Approov.
 
 
 ## Why?
@@ -17,7 +17,7 @@ See the overview in the [README](/README.md#how-it-works) at the root of this re
 
 ## Requirements
 
-In order to to complete this quickstart we will require the Approov and CLoudflare CLI tools to be installed in your system.
+In order to to complete this quickstart we will require the Approov and Cloudflare CLI tools to be installed in your system.
 
 ### Cloudflare CLI Tool
 
@@ -104,7 +104,7 @@ wrangler secret put --env staging APPROOV_BASE64_SECRET
 
 #### Set the Approov Token Binding Header Name in Cloudflare
 
-The default value for `TOKEN_BINDING_HEADER_NAME` in the code is `Authorization`, therefore you just need to set it in CLoudflare as an environment variable if you plan to use a different header name.
+The default value for `TOKEN_BINDING_HEADER_NAME` in the code is `Authorization`, therefore you just need to set it in Cloudflare as an environment variable if you plan to use a different header name.
 
 To use a different header name run from the root of `workers/approov-token-binding/` folder:
 
