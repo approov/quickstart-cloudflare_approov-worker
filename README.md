@@ -1,4 +1,4 @@
-# Approov Quick Start - Cloudflare Worker
+# Approov Quickstart - Cloudflare Worker
 
 Approov Cloudflare worker that verifies incoming requests have a valid [Approov](https://approov.io) JSON Web Token (JWT) before the request is forwarded on to your infrastructure or to a third party service.
 
@@ -40,23 +40,23 @@ The request is handled as such:
 You can choose to log JWT verification failures, but that typically has to go to another provider or you can use the Cloudflare `wrangler tail` command to see the logs from your computer, but that requires a subscription of another Cloudflare service.
 
 
-## Approov Token Quick Start
+## Approov Token Quickstart
 
-Please follow this [guide](/workers/approov-token/README.md) for a quick start on integrating Approov in your current Cloudflare infrastructure.
+Please follow this [guide](/workers/approov-token/README.md) for a quickstart on integrating Approov in your current Cloudflare infrastructure.
 
 
-## Approov Token Binding Quick Start
+## Approov Token Binding Quickstart
 
 The [Approov Token Binding](https://approov.io/docs/latest/approov-usage-documentation/#token-binding) is an advanced feature of Approov that lets you to bind another header in the request with the Approov Token itself. For example the Authorization header.
 
-Please follow this [guide](/workers/approov-token-binding/README.md) for a quick start on integrating Approov in your current Cloudflare infrastructure with token binding support.
+Please follow this [guide](/workers/approov-token-binding/README.md) for a quickstart on integrating Approov in your current Cloudflare infrastructure with token binding support.
 
 
 ## API Requests with Postman
 
 A ready to use Postman collection can be found [here](https://raw.githubusercontent.com/approov/postman-collections/master/shapes-api/shapes-api-gateway-proxy.postman_collection.json), that contains a very comprehensive set of example requests for valid and invalid Approov Tokens, with and without token binding.
 
-> **NOTE:** The Postman collection contains Approov tokens signed with a dummy secret that was generated with `openssl rand -base64 64 | tr -d '\n'; echo`, therefore not a production secret retrieved with `approov secret -get base64`, thus in order to use it you need to set the `APPROOV_BASE64_SECRET` in Cloudflare, as explained in the quick starts, with the value of `h+CX0tOzdAAR9l15bWAqvq7w9olk66daIH+Xk+IAHhVVHszjDzeGobzNnqyRze3lw/WVyWrc2gZfh3XXfBOmww==`.
+> **NOTE:** The Postman collection contains Approov tokens signed with a dummy secret that was generated with `openssl rand -base64 64 | tr -d '\n'; echo`, therefore not a production secret retrieved with `approov secret -get base64`, thus in order to use it you need to set the `APPROOV_BASE64_SECRET` in Cloudflare, as explained in the quickstarts, with the value of `h+CX0tOzdAAR9l15bWAqvq7w9olk66daIH+Xk+IAHhVVHszjDzeGobzNnqyRze3lw/WVyWrc2gZfh3XXfBOmww==`.
 
 
 ## Troubleshooting

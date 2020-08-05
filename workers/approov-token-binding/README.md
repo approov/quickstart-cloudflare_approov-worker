@@ -1,8 +1,8 @@
-# Approov Token Binding Quick Start
+# Approov Token Binding Quickstart
 
-This quick start is for developers familiar with Cloudflare who are looking for a quick intro into how they can add [Approov](https://approov.io) into an existing project. Therefore this will guide you through the necessary steps for adding Approov to an existing site being routed through Cloudflare.
+This quickstart is for developers familiar with Cloudflare who are looking for a quick intro into how they can add [Approov](https://approov.io) into an existing project. Therefore this will guide you through the necessary steps for adding Approov to an existing site being routed through Cloudflare.
 
-We strongly advise you to try first this quick start in a staging environment, and just follow it in a production environment when you understand how Approov works within your Cloudflare deployment. So after you finish testing the Approov integration in your staging environment, just replace all occurrences of `staging` with `production` to deploy the Approov Cloudflare worker into your CLoudflare production infrastructure in order to protect your API with Approov.
+We strongly advise you to try first this quickstart in a staging environment, and just follow it in a production environment when you understand how Approov works within your Cloudflare deployment. So after you finish testing the Approov integration in your staging environment, just replace all occurrences of `staging` with `production` to deploy the Approov Cloudflare worker into your CLoudflare production infrastructure in order to protect your API with Approov.
 
 
 ## Why?
@@ -17,7 +17,7 @@ See the overview in the [README](/README.md#how-it-works) at the root of this re
 
 ## Requirements
 
-In order to to complete this quick start we will require the Approov and CLoudflare CLI tools to be installed in your system.
+In order to to complete this quickstart we will require the Approov and CLoudflare CLI tools to be installed in your system.
 
 ### Cloudflare CLI Tool
 
@@ -55,7 +55,6 @@ approov api -add your.api.domain.com
 ```
 
 Now that Approov knows the domain for your API you get [dynamic certificate pinning](https://approov.io/docs/latest/approov-usage-documentation/#approov-dynamic-pinning) out of the box for free.
-
 
 ## Approov Cloudflare Worker
 
