@@ -22,22 +22,23 @@ This will be a brief overview on how the Approov cloud service and the Approov C
 
 ### Approov Cloud Service
 
-The Approov cloud service attests that a device is running a legitimate version of your mobile app and hasn't been tampered with:
+The Approov cloud service attests that a device is running a legitimate and tamper-free version of your mobile app.
 
-* If the mobile app passes the integrity check by the Approov cloud service, then a valid token is returned to the mobile app, which then is sent over with every request the mobile app does to the backend
-* If the mobile app fails the integrity check by the Approov cloud service, then a legitimate looking token will be returned, which is also sent with every request the mobile app does to the backend
+* If the integrity check passes then a valid token is returned to the mobile app
+* If the integrity check fails then a legitimate looking token will be returned
+
+In either case, the app, unaware of the token's validity, adds it to every request it makes to the protected API(s).
 
 ### Approov Cloudflare Worker
 
-The Approov Cloudflare worker ensures the JWT supplied in the `Approov-Token` header is present and valid. The validation is done by using a shared secret only known by the Approov cloud service and the Approov Cloudflare worker.
+The Approov Cloudflare worker defined here, ensures that the token supplied in the `Approov-Token` header is present and valid. The validation is done by using a shared secret known only to the Approov cloud service and the Approov Cloudflare worker.
 
-The request is handled as such:
+The request is handled such that:
 
-* If the Approov Token is valid, it's passed on using whatever Cloudflare rules you have.
+* If the Approov Token is valid, the request is passed on using the Cloudflare rules you have defined.
 * If the Approov Token is invalid, a HTTP 401 Unauthorized is returned.
 
 You can choose to log JWT verification failures, but that typically has to go to another provider or you can use the Cloudflare `wrangler tail` command to see the logs from your computer, but that requires a subscription of another Cloudflare service.
-
 
 ## Approov Cloudflare Workers Quickstarts
 
