@@ -18,9 +18,7 @@ You can learn more about Approov, the motives for adopting it, and more detail o
 
 ## How it works?
 
-A brief overview on how the Approov cloud service and the Approov Cloudflare worker fit together from a backend perspective.
-
-Please read the [Approov in Detail](https://approov.io/approov-in-detail.html) page for a detailed overview of how the mobile app and backend fit together with the Approov cloud service and the Approov SDK.
+This will be a brief overview on how the Approov cloud service and the Approov Cloudflare worker fit together from a backend perspective. For a complete overview of how the mobile app and backend fit together with the Approov cloud service and the Approov SDK we recommend you to read the [Approov in Detail](https://approov.io/approov-in-detail.html) page on our website.
 
 ### Approov Cloud Service
 
@@ -40,16 +38,13 @@ The request is handled as such:
 
 You can choose to log JWT verification failures, but that typically has to go to another provider or you can use the Cloudflare `wrangler tail` command to see the logs from your computer, but that requires a subscription of another Cloudflare service.
 
-## Approov Token Quickstart
 
-Please follow this [guide](/workers/approov-token/README.md) for a quickstart on integrating Approov in your current Cloudflare infrastructure.
+## Approov Cloudflare Workers Quickstarts
 
+The quickstart code for the Approov Clouflare worker is split into two implementations. The first gets you up and running with basic token checking in the Cloudflare worker. The second uses a more advanced Approov feature, _token binding_. Token binding may be used to link the Approov token with other properties of the request, such as user authentication (more details can be found [here](https://approov.io/docs/latest/approov-usage-documentation/#token-binding)).
 
-## Approov Token Binding Quickstart
-
-[Token Binding](https://approov.io/docs/latest/approov-usage-documentation/#token-binding) is an advanced feature of Approov that lets you link other properties of a request with the Approov Token. In this example, we bind a token to the value of the Authorization header.
-
-Please follow this [guide](/workers/approov-token-binding/README.md) for a quickstart on integrating Approov in your current Cloudflare infrastructure with token binding support.
+* [Approov token check quickstart](/workers/approov-token/README.md)
+* [Approov token check with token binding quickstart](/workers/approov-token-binding/README.md)
 
 
 ## API Requests with Postman
@@ -58,11 +53,13 @@ A ready to use Postman collection can be found [here](https://raw.githubusercont
 
 > **NOTE:** The Postman collection contains Approov tokens signed with a dummy secret that was generated with `openssl rand -base64 64 | tr -d '\n'; echo`, therefore not a production secret retrieved with `approov secret -get base64`, thus in order to use it you need to set the `APPROOV_BASE64_SECRET` in Cloudflare, as explained in the quickstarts, to the following value: `h+CX0tOzdAAR9l15bWAqvq7w9olk66daIH+Xk+IAHhVVHszjDzeGobzNnqyRze3lw/WVyWrc2gZfh3XXfBOmww==`.
 
+
 ## Troubleshooting
 
 * The first thing to do is to switch Cloudflare to development mode in order to bypass cache and always hit the origin server.
 * Check the wildcards `*` in your route pattern, and ensure they go by the rules defined [here](https://developers.cloudflare.com/workers/about/routes/).
 * Run the `wrangler dev` command to have your code running at http://localhost:8787, and be able to see the errors in the console.
+
 
 ## Useful Links
 
