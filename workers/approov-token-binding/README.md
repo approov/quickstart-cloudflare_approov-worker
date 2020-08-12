@@ -17,7 +17,7 @@ See the overview in the [README](/README.md#how-it-works) at the root of this re
 
 ## Requirements
 
-In order to to complete this quickstart we will require the Approov and Cloudflare CLI tools to be installed in your system.
+In order to complete this quickstart we will require the Approov and Cloudflare CLI tools to be installed in your system.
 
 ### Cloudflare CLI Tool
 
