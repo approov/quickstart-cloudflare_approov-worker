@@ -9,11 +9,11 @@ This repo implements the Approov server-side request verification code in a Clou
 
 You can learn more about Approov, the motives for adopting it, and more detail on how it works by following this [link](https://approov.io/approov-in-detail.html). In brief, Approov:
 
-* Ensures accesses to your API come from official versions of your apps; it blocks accesses from republished, modified, or tampered versions
-* Protects the sensitive data behind your API; it prevents direct API abuse from bots or scripts scraping data, or other malicious activity
+* Ensures that accesses to your API come from official versions of your apps; it blocks accesses from republished, modified, or tampered versions
+* Protects the sensitive data behind your API; it prevents direct API abuse from bots or scripts scraping data and other malicious activity
 * Secures the communication channel between your app and your API with [Approov Dynamic Certificate Pinning](https://approov.io/docs/latest/approov-usage-documentation/#approov-dynamic-pinning). This has all the benefits of traditional pinning but without the drawbacks
-* No need for an API key in the mobile app
-* DDoS prevention at application level with Approov and at network level via Clouflare.
+* Removes the need for an API key in the mobile app
+* Improves the network layer DDoS protection provided by Clouflare with an application layer provided by Approov
 
 
 ## How it works?
@@ -40,7 +40,6 @@ The request is handled as such:
 
 You can choose to log JWT verification failures, but that typically has to go to another provider or you can use the Cloudflare `wrangler tail` command to see the logs from your computer, but that requires a subscription of another Cloudflare service.
 
-
 ## Approov Token Quickstart
 
 Please follow this [guide](/workers/approov-token/README.md) for a quickstart on integrating Approov in your current Cloudflare infrastructure.
@@ -48,7 +47,7 @@ Please follow this [guide](/workers/approov-token/README.md) for a quickstart on
 
 ## Approov Token Binding Quickstart
 
-The [Approov Token Binding](https://approov.io/docs/latest/approov-usage-documentation/#token-binding) is an advanced feature of Approov that lets you to bind another header in the request with the Approov Token itself. For example the Authorization header.
+[Token Binding](https://approov.io/docs/latest/approov-usage-documentation/#token-binding) is an advanced feature of Approov that lets you link other properties of a request with the Approov Token. In this example, we bind a token to the value of the Authorization header.
 
 Please follow this [guide](/workers/approov-token-binding/README.md) for a quickstart on integrating Approov in your current Cloudflare infrastructure with token binding support.
 
