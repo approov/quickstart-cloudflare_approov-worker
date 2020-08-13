@@ -92,7 +92,7 @@ From the root of `workers/approov-token/` folder run:
 wrangler secret put --env staging APPROOV_BASE64_SECRET
 ```
 
-> **NOTE:**: You only need to run this command for the first time you deploy the Approov token worker in each environment.
+> **NOTE:**: You will need to run this command the first time you deploy the Approov token worker in each environment.
 
 ### Logging
 
@@ -104,7 +104,7 @@ From the `workers/approov-token/` folder run:
 wrangler secret put --env staging APPROOV_LOGGING_ENABLED
 ```
 
-> **NOTE:**: You need to run this command in each environment you want to run the Approov token worker with logging enabled.
+> **NOTE:**: To enable logging, you will need to run this command the first time you deploy the Approov token worker in each environment.
 
 ### View the Secrets in the Cloudfare Dashboard
 
