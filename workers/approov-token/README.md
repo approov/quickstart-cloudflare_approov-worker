@@ -14,8 +14,7 @@ To lock down your API server to your mobile app. Please read the brief summary i
 
 For more background, see the overview in the [README](/README.md#how-it-works) at the root of this repo.
 
-The main functionality for the token check is in [jwt-verifier.js](/workers/approov-token/jwt-verifier.js).
-Take a look at the `handleRequest` function to see the simple code for check.
+The main functionality for the Approov token check is in [jwt-verifier.js](/workers/approov-token/jwt-verifier.js). Take a look at the `handleRequest` function to see the simple code for the check.
 
 
 ## Requirements
@@ -75,8 +74,7 @@ wrangler publish --env staging
 
 ### Approov Secret for the Approov Worker
 
-Approov tokens are signed with a symmetric secret.
-To verify tokens, we need to grab the secret using the [Approov secret command](https://approov.io/docs/latest/approov-cli-tool-reference/#secret-command) and plug it into the Cloudflare worker to check the signatures of the [Approov Tokens](https://www.approov.io/docs/latest/approov-usage-documentation/#approov-tokens) that it processes.
+Approov tokens are signed with a symmetric secret. To verify tokens, we need to grab the secret using the [Approov secret command](https://approov.io/docs/latest/approov-cli-tool-reference/#secret-command) and plug it into the Cloudflare worker to check the signatures of the [Approov Tokens](https://www.approov.io/docs/latest/approov-usage-documentation/#approov-tokens) that it processes.
 
 #### Retrieve the Approov Secret
 
@@ -94,7 +92,7 @@ From the root of `workers/approov-token/` folder run:
 wrangler secret put --env staging APPROOV_BASE64_SECRET
 ```
 
-> **NOTE:**: You need to create the environment variable `APPROOV_BASE64_SECRET` in each environment you want to run the Approov token worker.
+> **NOTE:**: You only need to run this command for the first time you deploy the Approov token worker in each environment.
 
 ### Logging
 
@@ -106,7 +104,7 @@ From the `workers/approov-token/` folder run:
 wrangler secret put --env staging APPROOV_LOGGING_ENABLED
 ```
 
-> **NOTE:**: You need to create the environment variable `APPROOV_LOGGING_ENABLED` in each environment you want to run the Approov token worker with logging enabled.
+> **NOTE:**: You need to run this command in each environment you want to run the Approov token worker with logging enabled.
 
 ### View the Secrets in the Cloudfare Dashboard
 
@@ -114,9 +112,7 @@ Now you can visit the Cloudflare Dashboard, select the tab **Workers**, click in
 
 ### Test it Works
 
-The following examples below use cURL, but you can also use the [Postman Collection](/README.md#api-requests-with-postman) to make the API requests.
-Just remember that you need to adjust the urls and tokens defined in the collection to match your deployment.
-Alternatively, the above README also contains instructions for using the preset _dummy_ secret to test your worker.
+The following examples below use cURL, but you can also use the [Postman Collection](/README.md#api-requests-with-postman) to make the API requests. Just remember that you need to adjust the urls and tokens defined in the collection to match your deployment. Alternatively, the above README also contains instructions for using the preset _dummy_ secret to test your worker.
 
 
 #### With Valid Approov Tokens
