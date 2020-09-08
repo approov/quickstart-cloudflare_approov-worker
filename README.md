@@ -50,7 +50,7 @@ The quickstart code for the Approov Clouflare worker is split into two implement
 
 ## API Requests with Postman
 
-A ready to use Postman collection can be found [here](https://raw.githubusercontent.com/approov/postman-collections/master/shapes-api/shapes-api-gateway-proxy.postman_collection.json). It contains a comprehensive set of example requests to send to the Cloudflare worker for testing. The collection contains requests with valid and invalid Approov Tokens, and with and without token binding.
+A ready to use Postman collection can be found [here](https://raw.githubusercontent.com/approov/postman-collections/master/quickstarts/shapes-api/shapes-api-gateway-proxy.postman_collection.json). It contains a comprehensive set of example requests to send to the Cloudflare worker for testing. The collection contains requests with valid and invalid Approov Tokens, and with and without token binding.
 
 > **NOTE:** The Postman collection contains Approov tokens signed with a dummy secret that was generated with `openssl rand -base64 64 | tr -d '\n'; echo`, therefore not a production secret retrieved with `approov secret -get base64`, thus in order to use it you need to set the `APPROOV_BASE64_SECRET` in Cloudflare, as explained in the quickstarts, to the following value: `h+CX0tOzdAAR9l15bWAqvq7w9olk66daIH+Xk+IAHhVVHszjDzeGobzNnqyRze3lw/WVyWrc2gZfh3XXfBOmww==`.
 
