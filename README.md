@@ -39,7 +39,7 @@ See [Raw Account Secret Key](https://approov.io/docs/latest/approov-usage-docume
 ## Setting up an Approov Gateway in Cloudflare
 
 
-### 0 Setup Your Approov and Cloudflare Environments
+### 0. Setup Your Approov and Cloudflare Environments
 
 These instructions assume you have a working `node` and `npm` development environment.
 
