@@ -1,0 +1,15 @@
+name = "approov-gateway"
+main = "src/index.js"
+compatibility_date = "2022-11-13"
+
+# Two environmental variables are specified as secrets.
+#
+# Use the `wrangler secret put <VARIABLE_NAME>` to specify these two secrets:
+#
+# The secret used to sign a valid approov token
+# APPROOV_SECRET_BASE64
+#
+# The api service domain protected by this api gateway
+# API_DOMAIN 
+
+# end of file
