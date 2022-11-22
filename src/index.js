@@ -8,6 +8,16 @@ import jwt from '@tsndr/cloudflare-worker-jwt'
 
 // Establish context from environmental settings.
 
+function arrayBufferToBase64(buffer) {
+  var binary = ''
+  var bytes = new Uint8Array(buffer)
+  var len = bytes.byteLength
+  for (var i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary)
+}
+
 const establishContext = (env) => {
   // console.log(`env: ${JSON.stringify(env)}`)
 
@@ -22,6 +32,24 @@ const establishContext = (env) => {
     apiHost: apiHost,
     isValid: approovSecret && apiHost,
   }
+
+  // test subtle crypto
+
+  const text =
+    'An obscure body in the S-K System, your majesty. The inhabitants refer to it as the planet Earth.'
+
+  async function digestMessage(message) {
+    const encoder = new TextEncoder()
+    const data = encoder.encode(message)
+    const hash = await crypto.subtle.digest('SHA-256', data)
+    return hash
+  }
+
+  digestMessage(text).then((digestBuffer) =>
+    console.log(
+      `hash: ${arrayBufferToBase64(digestBuffer)} [${digestBuffer.byteLength}]`
+    )
+  )
 
   return ctx
 }
