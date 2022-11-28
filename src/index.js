@@ -6,50 +6,60 @@
 
 import jwt from '@tsndr/cloudflare-worker-jwt'
 
-// Establish context from environmental settings.
+// function arrayBufferToBase64(buffer) {
+//   var binary = ''
+//   var bytes = new Uint8Array(buffer)
+//   var len = bytes.byteLength
+//   for (var i = 0; i < len; i++) {
+//     binary += String.fromCharCode(bytes[i])
+//   }
+//   return btoa(binary)
+// }
 
-function arrayBufferToBase64(buffer) {
-  var binary = ''
-  var bytes = new Uint8Array(buffer)
-  var len = bytes.byteLength
-  for (var i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i])
-  }
-  return btoa(binary)
-}
+//   // test subtle crypto
+
+//   const text =
+//     'An obscure body in the S-K System, your majesty. The inhabitants refer to it as the planet Earth.'
+
+//   async function digestMessage(message) {
+//     const encoder = new TextEncoder()
+//     const data = encoder.encode(message)
+//     const hash = await crypto.subtle.digest('SHA-256', data)
+//     return hash
+//   }
+
+//   digestMessage(text).then((digestBuffer) =>
+//     console.log(
+//       `hash: ${arrayBufferToBase64(digestBuffer)} [${digestBuffer.byteLength}]`
+//     )
+//   )
+
+// Establish context from environmental settings.
 
 const establishContext = (env) => {
   // console.log(`env: ${JSON.stringify(env)}`)
 
   const approovSecretBase64 = env.APPROOV_SECRET_BASE64
   const approovSecret = approovSecretBase64 ? atob(approovSecretBase64) : null
+  const approovTokenHeaderName =
+    env.APPROOV_TOKEN_HEADER_NAME || 'Approov-Token'
+  const approovBindingHeaderName =
+    env.APPROOV_BINDING_HEADER_NAME || 'Authorization'
+  const approovBindingClaimName = env.APPROOV_BINDING_CLAIM_NAME || 'pay'
+  const approovBindingVerification =
+    env.APPROOV_VERIFICATION_STRATEGY === 'token-with-binding' || false
 
   const apiHost = env.API_DOMAIN
 
   const ctx = {
-    approovSecret: approovSecret,
-    approovHeaderName: 'Approov-Token',
-    apiHost: apiHost,
+    approovSecret,
+    approovTokenHeaderName,
+    approovBindingHeaderName,
+    approovBindingClaimName,
+    approovBindingVerification,
+    apiHost,
     isValid: approovSecret && apiHost,
   }
-
-  // test subtle crypto
-
-  const text =
-    'An obscure body in the S-K System, your majesty. The inhabitants refer to it as the planet Earth.'
-
-  async function digestMessage(message) {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(message)
-    const hash = await crypto.subtle.digest('SHA-256', data)
-    return hash
-  }
-
-  digestMessage(text).then((digestBuffer) =>
-    console.log(
-      `hash: ${arrayBufferToBase64(digestBuffer)} [${digestBuffer.byteLength}]`
-    )
-  )
 
   return ctx
 }
@@ -57,7 +67,7 @@ const establishContext = (env) => {
 // Extract Approov token string from request headers.
 
 const extractToken = (ctx, request) => {
-  const token = request.headers.get(ctx.approovHeaderName)
+  const token = request.headers.get(ctx.approovTokenHeaderName)
 
   return token
 }
@@ -70,6 +80,72 @@ const validateToken = async (ctx, token) => {
   const isValid = await jwt.verify(token, ctx.approovSecret, options)
 
   return isValid
+}
+
+// Extract Approov binding string from request headers.
+
+const extractBinding = (ctx, request) => {
+  const binding = request.headers.get(ctx.approovBindingHeaderName)
+
+  return binding
+}
+
+// Hash binding string to base64.
+
+const hashBinding = async (binding) => {
+  if (!binding) return null
+
+  // hash binding string to array buffer
+
+  const encoder = new TextEncoder()
+  const data = encoder.encode(binding)
+  const buffer = await crypto.subtle.digest('SHA-256', data)
+
+  // convert array buffer to base64 string
+
+  var binary = ''
+  const bytes = new Uint8Array(buffer)
+  const len = bytes.byteLength
+  for (var i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  const hash = btoa(binary)
+
+  return hash
+}
+
+// Validate token payload has expected binding hash.
+
+const validateBinding = async (ctx, token, binding) => {
+  if (!ctx || !token || !hash) return false
+
+  // hash binding string to array buffer
+
+  const encoder = new TextEncoder()
+  const data = encoder.encode(binding)
+  const buffer = await crypto.subtle.digest('SHA-256', data)
+
+  // convert array buffer to base64 string
+
+  var binary = ''
+  const bytes = new Uint8Array(buffer)
+  const len = bytes.byteLength
+  for (var i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  const hash = btoa(binary)
+
+  // assume token already validated
+
+  // extract pay claim
+
+  const { payload } = jwt.decode(token)
+  const claim = payload ? payload[ctx.approovBindingClaimName] : null
+  if (!claim) return false
+
+  // compare claim to hash
+
+  return claim === hash
 }
 
 // Rewrite unprotected API request.
@@ -88,6 +164,8 @@ const rewriteApiRequest = (ctx, request) => {
 // Handle request.
 
 const handleRequest = async (request, env) => {
+  console.log(`validatiing api call`)
+
   // establish context
 
   const ctx = establishContext(env)
@@ -106,10 +184,22 @@ const handleRequest = async (request, env) => {
     return new Response('unauthorized', { status: 401 })
   }
 
-  const isAuthorized = await validateToken(ctx, approovToken)
+  let isAuthorized = await validateToken(ctx, approovToken)
   if (!isAuthorized) {
     console.error(`AUTH FAILURE: approov token expired or not properly signed`)
     return new Response('unauthorized', { status: 401 })
+  }
+
+  // if binding strategy, validate approov binding
+
+  if (ctx.approovBindingVerification) {
+    const approovBinding = extractBinding(ctx, request)
+
+    isAuthorized = await validateBinding(ctx, approovToken, approovBinding)
+    if (!isAuthorized) {
+      console.error(`AUTH FAILURE: approov token binding missing or invalid`)
+      return new Response('unauthorized', { status: 401 })
+    }
   }
 
   // rewrite and submit authorized request
