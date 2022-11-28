@@ -2,8 +2,8 @@ name = "approov-gateway"
 main = "src/index.js"
 compatibility_date = "2022-11-13"
 
-# Two environmental variables are specified as secrets.
-#
+# secrets
+
 # Use the `wrangler secret put <VARIABLE_NAME>` to specify these two secrets:
 #
 # The secret used to sign a valid approov token
@@ -11,5 +11,19 @@ compatibility_date = "2022-11-13"
 #
 # The api service domain protected by this api gateway
 # API_DOMAIN 
+
+[vars]
+
+# Name of header field holding Approov token
+#   default is "Approov-Token"
+#APPROOV_TOKEN_HEADER_NAME = "Approov-Token"
+
+# Name of header field holding binding value
+#   default is "Authorization"
+#APPROOV_BINDING_HEADER_NAME = "Authorization"
+
+# Approov verification strategy ("token" or "token-with-binding")
+#   default is "token"
+#APPROOV_VERIFICATION_STRATEGY = "token-with-binding"
 
 # end of file

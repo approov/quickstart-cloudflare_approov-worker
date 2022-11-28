@@ -6,39 +6,9 @@
 
 import jwt from '@tsndr/cloudflare-worker-jwt'
 
-// function arrayBufferToBase64(buffer) {
-//   var binary = ''
-//   var bytes = new Uint8Array(buffer)
-//   var len = bytes.byteLength
-//   for (var i = 0; i < len; i++) {
-//     binary += String.fromCharCode(bytes[i])
-//   }
-//   return btoa(binary)
-// }
-
-//   // test subtle crypto
-
-//   const text =
-//     'An obscure body in the S-K System, your majesty. The inhabitants refer to it as the planet Earth.'
-
-//   async function digestMessage(message) {
-//     const encoder = new TextEncoder()
-//     const data = encoder.encode(message)
-//     const hash = await crypto.subtle.digest('SHA-256', data)
-//     return hash
-//   }
-
-//   digestMessage(text).then((digestBuffer) =>
-//     console.log(
-//       `hash: ${arrayBufferToBase64(digestBuffer)} [${digestBuffer.byteLength}]`
-//     )
-//   )
-
 // Establish context from environmental settings.
 
 const establishContext = (env) => {
-  // console.log(`env: ${JSON.stringify(env)}`)
-
   const approovSecretBase64 = env.APPROOV_SECRET_BASE64
   const approovSecret = approovSecretBase64 ? atob(approovSecretBase64) : null
   const approovTokenHeaderName =
@@ -58,7 +28,7 @@ const establishContext = (env) => {
     approovBindingClaimName,
     approovBindingVerification,
     apiHost,
-    isValid: approovSecret && apiHost,
+    isValid: !!(approovSecret && apiHost),
   }
 
   return ctx
@@ -75,6 +45,8 @@ const extractToken = (ctx, request) => {
 // Validate Approov token is properly signed and not expired.
 
 const validateToken = async (ctx, token) => {
+  if (!ctx || !token) return false
+
   const options = { algorithm: 'HS256', throwError: false }
 
   const isValid = await jwt.verify(token, ctx.approovSecret, options)
@@ -90,34 +62,10 @@ const extractBinding = (ctx, request) => {
   return binding
 }
 
-// Hash binding string to base64.
-
-const hashBinding = async (binding) => {
-  if (!binding) return null
-
-  // hash binding string to array buffer
-
-  const encoder = new TextEncoder()
-  const data = encoder.encode(binding)
-  const buffer = await crypto.subtle.digest('SHA-256', data)
-
-  // convert array buffer to base64 string
-
-  var binary = ''
-  const bytes = new Uint8Array(buffer)
-  const len = bytes.byteLength
-  for (var i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i])
-  }
-  const hash = btoa(binary)
-
-  return hash
-}
-
 // Validate token payload has expected binding hash.
 
 const validateBinding = async (ctx, token, binding) => {
-  if (!ctx || !token || !hash) return false
+  if (!ctx || !token || !binding) return false
 
   // hash binding string to array buffer
 
