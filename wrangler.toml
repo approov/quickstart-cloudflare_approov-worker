@@ -22,8 +22,8 @@ compatibility_date = "2022-11-13"
 #   default is "Authorization"
 #APPROOV_BINDING_HEADER_NAME = "Authorization"
 
-# Approov verification strategy ("token" or "token-with-binding")
+# Approov verification strategy ("token" or "token-binding")
 #   default is "token"
-#APPROOV_VERIFICATION_STRATEGY = "token-with-binding"
+APPROOV_VERIFICATION_STRATEGY = "token"
 
 # end of file

@@ -17,7 +17,7 @@ const establishContext = (env) => {
     env.APPROOV_BINDING_HEADER_NAME || 'Authorization'
   const approovBindingClaimName = env.APPROOV_BINDING_CLAIM_NAME || 'pay'
   const approovBindingVerification =
-    env.APPROOV_VERIFICATION_STRATEGY === 'token-with-binding' || false
+    env.APPROOV_VERIFICATION_STRATEGY === 'token-binding' || false
 
   const apiHost = env.API_DOMAIN
 
@@ -112,8 +112,6 @@ const rewriteApiRequest = (ctx, request) => {
 // Handle request.
 
 const handleRequest = async (request, env) => {
-  console.log(`validatiing api call`)
-
   // establish context
 
   const ctx = establishContext(env)

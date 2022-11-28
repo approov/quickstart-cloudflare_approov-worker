@@ -16,13 +16,15 @@ You can learn more about Approov, the motives for adopting it, and more detail o
 * Removes the need for an API key in the mobile app
 * Improves the network layer DDoS protection provided by Clouflare with an application layer provided by Approov
 
-## Approov Gateway Architecture
+## Verifying Approov Through a Serverless Gateway
 
 The Approov Gateway is implemented as a Cloudflare worker and protects a backend API service from unauthorized access.
 
 Each API call to the gateway contains an Approov JWT token, typically passed as an `Approov-Token` header value. A token is signed by a secret known only to the Approov cloud service and the Approov Cloudflare worker. The Cloudflare worker verifies that the Approov token has not expired and is properly signed.
 
-If the token verification succeeds, the API call is rewritten and forwarded to the backend API service, and the service's response is returned to the original caller. If the token is missing or fails verification, a 401 unauthorized response is immediately returned to the caller.
+Optionally, an Approov token can be bound to another header value, typically a bearer authorization header. A hash of this header value is compared to a pay claim in the Approov token to ensure they match.
+
+If the Approov verification succeeds, the API call is rewritten and forwarded to the backend API service, and the service's response is returned to the original caller. If the token is missing or fails verification, a 401 unauthorized response is immediately returned to the caller.
 
 See [Approov in Detail](https://approov.io/product) for additional information on how the mobile app and backend fit together with the Approov cloud service and the Approov SDK.
 
@@ -36,8 +38,7 @@ This Cloudflare worker implementation is based on the `wrangler2` development to
 
 See [Raw Account Secret Key](https://approov.io/docs/latest/approov-usage-documentation/#raw-account-secret-key) for more information.
 
-## Setting up an Approov Gateway in Cloudflare
-
+## Setting up Approov Verification in Cloudflare
 
 ### 0. Setup Your Approov and Cloudflare Environments
 
@@ -56,6 +57,8 @@ During the setup, the free [{JSON} Placeholder](https://jsonplaceholder.typicode
 The quickstart is initially configured to use your free `*.<CF_SUBDOMAIN>.workers.dev` domain, but this can be customized later in your `wrangler.toml` file and Cloudflare worker's dashboard.
 
 See additional information at [Cloudflare Docs](https://developers.cloudflare.com/workers/).
+
+This initial setup assumes default values for all environmental variables. The default setup verifies the liveness and signature of the Approov token. No additional token binding check is used. The token is taken from the `Approov-Token` header.
 
 ### 1. Clone and Install the Cloudflare Approov Worker Quickstart
 
@@ -80,7 +83,7 @@ Make sure you are in the `quickstart-cloudflare_approov-worker` directory and ru
 
 A default browser window will open asking for authorization.
 
-### 3. Add the GAteway API Domain to Approov
+### 3. Add the Gateway API Domain to Approov
 
 The Approov Cloudflare worker is initially published to `approov-gateway.<CF_SUBDOMAIN>.workers.dev` domain. Replace `<CF_SUBDOMAIN>.workers.dev` with the subdomain you have configured in your cloudflare dashboard:
 
@@ -170,6 +173,50 @@ The API Gateway is now available at `approov-gateway.<CF_SUBDOMAIN>.workers.dev`
 You can test this production version in Postman by replacing `localhost:8787` with `approov-gateway.<CF_SUBDOMAIN>.workers.dev`.
 
 From here, you can switch to a custom domain and add any additional processing or logging withing the `src/index.js` file.
+
+### Changing the Wrangler Configuration
+
+Cloudflare workers are configured using the `wrangler.toml` file. The default configuration includes a `[vars]` section which can change the verification setup:
+
+```
+[vars]
+
+# Name of header field holding Approov token
+#   default is "Approov-Token"
+#APPROOV_TOKEN_HEADER_NAME = "Approov-Token"
+
+# Name of header field holding binding value
+#   default is "Authorization"
+#APPROOV_BINDING_HEADER_NAME = "Authorization"
+
+# Approov verification strategy ("token" or "token-with-binding")
+#   default is "token"
+#APPROOV_VERIFICATION_STRATEGY = "token-with-binding"
+```
+
+Default values are shown. To change any setting, uncomment its assignment and update its value.
+
+Note: you must restart your Cloudflare worker after making any changes to the `wrangler.toml` configuration before these changes will take effect.
+
+### Adding Approov Token Binding Checks
+
+The `APPROOV_VERIFICATION_STRATEGY` defaults to `token` check only. To add a binding check, uncomment and change the `APPROOV_VERIFICATION_STRATEGY` value to `token-binding`.
+
+By default, the `Authorization` header field is assumed to contain the binding value. To change which header field holds the binding value, uncomment `APPROOV_BINDING_HEADER_NAME` and update its value to be the name of the header field holding the value being bound.
+
+A token is properly bound if a hash of the binding value matches the value found in the `pay` claim within the Approov token.
+
+For testing, add a data value to be hashed into an example Approov token:
+
+```
+> approov token -genExample approov-gateway.<CF_SUBDOMAIN>.workers.dev -setDataHashInToken 'Bearer 0123456789abcdef'
+```
+
+In this case, the example data value is `Bearer 0123456789abcdef`. Add that same data value to the `APPROOV_BINDING_HEADER_NAME` field in any API call being validated by an Approov token-binding check.
+
+Don't forget to restart your Cloudflare worker after making any changes to the `wrangler.toml` configuration.
+
+See [Approov Token Binding](https://approov.io/docs/latest/approov-usage-documentation/#token-binding) for important information on Approov token binding checks.
 
 ## Useful Links
 
