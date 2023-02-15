@@ -33,7 +33,7 @@ See [Approov in Detail](https://approov.io/product) for additional information o
 This Cloudflare worker implementation is based on the `wrangler2` development tooling. The runtime is built around the V8 Javascript engine and implements browser APIs but does not offer all node built-in services. As a result, the [@tsndr/cloudflare-worker-jwt](https://www.npmjs.com/package/@tsndr/cloudflare-worker-jwt) is used to verify JWTs. This library works best with secret strings which only contain printable characters. For Approov, this requires the account secret to contain only printable characters. Use the following CLI command to set this:
 
 ```
-> approov secret -change -forcePrintable
+approov secret -change -forcePrintable
 ```
 
 See [Raw Account Secret Key](https://approov.io/docs/latest/approov-usage-documentation/#raw-account-secret-key) for more information.
@@ -49,7 +49,7 @@ An Approov account and properly installed Approov CLI are required. If necessary
 A Cloudflare account and wrangler CLI are also required. Go to [Cloudflare Workers](https://workers.cloudflare.com/) and sign up or log in as appropriate. Install the  latest wrangler CLI:
 
 ```
-> npm install -g wrangler
+npm install -g wrangler
 ```
 
 During the setup, the free [{JSON} Placeholder](https://jsonplaceholder.typicode.com) fake API is used as an example backend API service.
@@ -65,10 +65,10 @@ This initial setup assumes default values for all environmental variables. The d
 IMPORTANT: the latest Approov Cloudflare implementation is currently stored in the `wrangler2` repo branch.
 
 ```
-> git clone https://github.com/approov/quickstart-cloudflare_approov-worker.git
-> cd quickstart-cloudflare_approov-worker
-> git checkout wrangler2
-> npm install
+git clone https://github.com/approov/quickstart-cloudflare_approov-worker.git
+cd quickstart-cloudflare_approov-worker
+git checkout wrangler2
+npm install
 ```
 
 Make sure you switched to the `wrangler2` branch before installing the project files.
@@ -78,7 +78,7 @@ Make sure you switched to the `wrangler2` branch before installing the project f
 Make sure you are in the `quickstart-cloudflare_approov-worker` directory and run:
 
 ```
-> wrangler login
+wrangler login
 ```
 
 A default browser window will open asking for authorization.
@@ -88,7 +88,7 @@ A default browser window will open asking for authorization.
 The Approov Cloudflare worker is initially published to `approov-gateway.<CF_SUBDOMAIN>.workers.dev` domain. Replace `<CF_SUBDOMAIN>.workers.dev` with the subdomain you have configured in your cloudflare dashboard:
 
 ```
-> approov api -add approov-gateway.<CF_SUBDOMAIN>.workers.dev
+approov api -add approov-gateway.<CF_SUBDOMAIN>.workers.dev
 ```
 
 ### 4. Setup Your Approov Secret
@@ -96,14 +96,14 @@ The Approov Cloudflare worker is initially published to `approov-gateway.<CF_SUB
 IMPORTANT: because of limitations in the cloudflare worker JWT verifier, your account secret must contain only printable characters. Force Approov to provide a printable secret, and then get that secret in base64 format:
 
 ```
-> approov secret -change -forcePrintable
-> approov secret -get base64
+approov secret -change -forcePrintable
+approov secret -get base64
 ```
 
 Copy the resulting base64 secret string, and add it to your wrangler environment:
 
 ```
-> wrangler secret put APPROOV_SECRET_BASE64
+wrangler secret put APPROOV_SECRET_BASE64
 ```
 
 When asked, paste in the base64 secret string.
@@ -113,7 +113,7 @@ When asked, paste in the base64 secret string.
 Next, add the domain of your backend API service to the wrangler environment. As an example, we will use the {JSON} Placeholder API - `jsonplaceholder.typicode.com`:
 
 ```
-> wrangler secret put API_DOMAIN
+wrangler secret put API_DOMAIN
 ```
 
 When asked, input `jsonplaceholder.typicode.com` or your own API domain.
@@ -125,13 +125,13 @@ NOTE: the target API domain can be any internet-accessible domain. It is not res
 For testing, generate a valid example Approov token:
 
 ```
-> approov token -genExample approov-gateway.<CF_SUBDOMAIN>.workers.dev
+approov token -genExample approov-gateway.<CF_SUBDOMAIN>.workers.dev
 ```
 
 and an invalid Approov token:
 
 ```
-> approov token -genExample approov-gateway.<CF_SUBDOMAIN>.workers.dev -type invalid
+approov token -genExample approov-gateway.<CF_SUBDOMAIN>.workers.dev -type invalid
 ```
 
 Save both tokens for testing.
@@ -145,7 +145,7 @@ You can check the token's expiration date by pasting the token into {jwt.io}[htt
 Make sure you are in the `quickstart-cloudflare_approov-worker` directory and run:
 
 ```
-> wrangler dev
+wrangler dev
 ```
 
 If successful, a local cloudflare worker will be running at `http://localhost:8787`
@@ -165,7 +165,7 @@ Repeat this call, but change the `Approov-Token` header value to the **invalid**
 When ready, publish your Approov gateway to to Cloudflare:
 
 ```
-> wrangler publish
+wrangler publish
 ```
 
 The API Gateway is now available at `approov-gateway.<CF_SUBDOMAIN>.workers.dev`.
@@ -209,7 +209,7 @@ A token is properly bound if a hash of the binding value matches the value found
 For testing, add a data value to be hashed into an example Approov token:
 
 ```
-> approov token -genExample approov-gateway.<CF_SUBDOMAIN>.workers.dev -setDataHashInToken 'Bearer 0123456789abcdef'
+approov token -genExample approov-gateway.<CF_SUBDOMAIN>.workers.dev -setDataHashInToken 'Bearer 0123456789abcdef'
 ```
 
 In this case, the example data value is `Bearer 0123456789abcdef`. Add that same data value to the `APPROOV_BINDING_HEADER_NAME` field in any API call being validated by an Approov token-binding check.
@@ -234,5 +234,3 @@ See [Approov Token Binding](https://approov.io/docs/latest/approov-usage-documen
 * [Log to ElasticSearch](https://blog.cloudflare.com/logs-from-the-edge/)
 * [Log to Sentry](https://blog.cloudflare.com/dogfooding-edge-workers/)
 * [Log to LogDNA](https://community.cloudflare.com/t/simple-log-collector-worker/40954)
-
----
