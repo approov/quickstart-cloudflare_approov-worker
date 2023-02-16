@@ -111,6 +111,13 @@ const rewriteApiRequest = (ctx, request) => {
 
 // Handle request.
 
+const jsonErrorResponse = (message, status) => {
+  return new Response(
+    JSON.stringify({ error: message}),
+    { headers: { 'content-type': 'application/json' }, status: status }
+  )
+}
+
 const handleRequest = async (request, env) => {
   // establish context
 
@@ -119,7 +126,9 @@ const handleRequest = async (request, env) => {
     console.error(
       `CONTEXT ERROR: unable to establish context; check environmental values and secrets`
     )
-    return new Response('internal server error', { status: 500 })
+    return jsonErrorResponse('internal server error', 500)
+
+
   }
 
   // validate approov token
@@ -127,13 +136,13 @@ const handleRequest = async (request, env) => {
   const approovToken = extractToken(ctx, request)
   if (!approovToken) {
     console.error(`AUTH FAILURE: approov token not found`)
-    return new Response('unauthorized', { status: 401 })
+    return jsonErrorResponse('unauthorized', 401)
   }
 
   let isAuthorized = await validateToken(ctx, approovToken)
   if (!isAuthorized) {
     console.error(`AUTH FAILURE: approov token expired or not properly signed`)
-    return new Response('unauthorized', { status: 401 })
+    return jsonErrorResponse('unauthorized', 401)
   }
 
   // if binding strategy, validate approov binding
@@ -144,7 +153,7 @@ const handleRequest = async (request, env) => {
     isAuthorized = await validateBinding(ctx, approovToken, approovBinding)
     if (!isAuthorized) {
       console.error(`AUTH FAILURE: approov token binding missing or invalid`)
-      return new Response('unauthorized', { status: 401 })
+      return jsonErrorResponse('unauthorized', 401)
     }
   }
 
@@ -152,8 +161,6 @@ const handleRequest = async (request, env) => {
 
   const apiRequest = rewriteApiRequest(ctx, request)
   const response = await fetch(apiRequest)
-
-  // return response
 
   return response
 }
