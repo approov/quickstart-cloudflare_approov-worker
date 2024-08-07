@@ -62,8 +62,6 @@ This initial setup assumes default values for all environmental variables. The d
 
 ### 1. Clone and Install the Cloudflare Approov Worker Quickstart
 
-IMPORTANT: the latest Approov Cloudflare implementation is currently stored in the `wrangler2` repo branch.
-
 ```
 > git clone https://github.com/approov/quickstart-cloudflare_approov-worker.git
 > cd quickstart-cloudflare_approov-worker
