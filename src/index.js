@@ -1,4 +1,6 @@
 import jwt from '@tsndr/cloudflare-worker-jwt'
+import { verifyDigestHeader, parseRequestSignature, verifyParsedSignature } from '@misskey-dev/node-http-message-signatures';
+
 
 // Establish context from environmental settings.
 const establishContext = (env) => {
@@ -22,9 +24,9 @@ const establishContext = (env) => {
     approovTokenHeaderName: env.APPROOV_TOKEN_HEADER_NAME || 'Approov-Token',
     approovBindingHeaderName: env.APPROOV_BINDING_HEADER_NAME || 'Authorization',
     approovBindingClaimName: 'pay',
-    approovBindingVerification: env.APPROOV_VERIFICATION_STRATEGY === 'token-binding' || false,
-    apiHost: env.API_DOMAIN,
-    isValid: !!(approovSecret && env.API_DOMAIN),
+    approovBindingVerification: env.APPROOV_BINDING_VERIFICATION || false,
+    httpMessageSign: env.HTTP_MESSAGE_SIGN || false,  
+    isValid: !!(approovSecret),
   };
 
   return ctx;
@@ -88,15 +90,81 @@ const validateBinding = async (ctx, token, binding) => {
   return claim === hash;
 };
 
+// verifyHTTPSig verifies the signature of an HTTP message using the public key provided.
+//
+// request: the Cloudflare Worker Request object
+// publicKey: the public key to use for verification (the message signing secret from the Approov account for account
+//     message signing or the public key from the Approov token for device message signing)
+// return: an object with the following properties:
+//     valid: a boolean indicating whether the signature is valid or not
+//     status: a string with the status of the verification
+const verifyHTTPSig = async (request, publicKey, requestBody) => {
+  console.log('>>> Check HTTP message signature <<<');
+
+  // Convert the EC256 public key from base64 encoded ASN.1 DER to PEM format
+  const publicKeyBinary = atob(publicKey); // Decode base64 to binary string
+  const publicKeyPEM = `-----BEGIN PUBLIC KEY-----\n${publicKeyBinary.match(/.{1,64}/g).join('\n')}\n-----END PUBLIC KEY-----\n`;
+  console.log(`Public Key PEM: ${publicKeyPEM}`);
+
+  // Check the digest header if it exists
+  const contentDigest = request.headers.get('content-digest') || request.headers.get('digest');
+  if (contentDigest) {
+    console.log(`Content Digest Header: ${contentDigest}`);
+    const digestVerified = await verifyDigestHeader(
+      { headers: Object.fromEntries(request.headers) }, // Convert headers to a plain object
+      requestBody,
+      true,
+      (...args) => console.log(args.map(arg => JSON.stringify(arg)).join(' '))
+    );
+    if (!digestVerified) {
+      return { valid: false, status: 'invalid digest header' };
+    }
+  }
+
+  // Check the signature
+  let parsedSignature = null;
+  try {
+    parsedSignature = parseRequestSignature({ headers: Object.fromEntries(request.headers) });
+    console.log(`Parsed Signature: ${JSON.stringify(parsedSignature, null, 2)}`);
+  } catch (error) {
+    console.error(`Malformed message signature: ${error}`);
+    console.error(`Request Headers: ${JSON.stringify(Object.fromEntries(request.headers), null, 2)}`);
+    return { valid: false, status: 'malformed message signature' };
+  }
+
+  // Verify the signature
+  try {
+    const signatureVerified = await verifyParsedSignature(parsedSignature, publicKeyPEM, (...args) => console.log(args));
+    if (!signatureVerified) {
+      console.error(`Request Headers: ${JSON.stringify(Object.fromEntries(request.headers), null, 2)}`);
+      return { valid: false, status: 'invalid message signature' };
+    }
+  } catch (error) {
+    console.error(`Message signature error: ${error}`);
+    console.error(`Request Headers: ${JSON.stringify(Object.fromEntries(request.headers), null, 2)}`);
+    return { valid: false, status: 'message signature error' };
+  }
+
+  return { valid: true, status: 'valid HTTP message signature' };
+};
+
 // Handle request.
 const handleRequest = async (request, env) => {
+  // Read the request body once in handleRequest
+  const requestBody = await request.text();
+  // We must reject empty request bodies
+  if (!requestBody) {
+    console.error('AUTH FAILURE: Request body is empty');
+    return new Response('unauthorized', { status: 401 });
+}
   // Establish context
   const ctx = establishContext(env);
   if (!ctx.isValid) {
     console.error(`CONTEXT ERROR: Unable to establish context; check environmental values and secrets`);
     return new Response('internal server error', { status: 500 });
   }
-
+  // Log request details
+  console.log(`Request Method: ${request.method}, URL: ${request.url}`);
   // Validate Approov token
   const approovToken = extractToken(ctx, request);
   if (!approovToken) {
@@ -110,7 +178,7 @@ const handleRequest = async (request, env) => {
     return new Response('unauthorized', { status: 401 });
   }
 
-  // If binding strategy, validate Approov binding
+  // If token binding is mandatory, validate Approov binding
   if (ctx.approovBindingVerification) {
     const approovBinding = extractBinding(ctx, request);
     isAuthorized = await validateBinding(ctx, approovToken, approovBinding);
@@ -120,6 +188,39 @@ const handleRequest = async (request, env) => {
     }
   }
 
+  // If HTTP message signing is enabled, validate the signature
+  if (ctx.httpMessageSign) {
+    const signature = request.headers.get('sig');
+    if (!signature) {
+      console.error(`AUTH FAILURE: Signature header missing`);
+      return new Response('unauthorized', { status: 401 });
+    }
+    // Check whether the Approov token contains an installation public key (ipk) claim. If it does, we use this to verify
+    // the HTTP signature. If it does not, for this example we reject the request. TODO: Implement account message signature
+    // since this can be used instead of the per device signature (ipk) claim.
+
+    // We have validated the token already so we need to decode it to get the payload
+    const { payload } = jwt.decode(approovToken);
+    if (!payload || !payload.ipk) {
+      console.error(`AUTH FAILURE: Missing ipk claim in Approov token`);
+      return new Response('unauthorized', { status: 401 });
+    }
+    const ipk = payload.ipk;
+    // Verify the signature using the public key
+    const httpSigResult = await verifyHTTPSig(request, ipk, requestBody);
+    if (!httpSigResult.valid) {
+      console.error(`AUTH FAILURE: ${httpSigResult.status}`);
+      return new Response('unauthorized', { status: 401 });
+    }
+  }
+  // Log success
+  console.log(`AUTH SUCCESS: Approov token verified successfully`);
+  if (ctx.approovBindingVerification) {
+    console.log(`AUTH SUCCESS: Approov token binding verified successfully`);
+  }
+  if (ctx.httpMessageSign) {
+    console.log(`AUTH SUCCESS: HTTP message signature verified successfully`);
+  }
   // Forward request to API (without modifying headers)
   return fetch(request);
 };
