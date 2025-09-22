@@ -209,6 +209,11 @@ var validateBinding = async (ctx, token, binding) => {
   return claim === hash;
 };
 var handleRequest = async (request, env) => {
+   // Log the request headers for debugging purposes
+   console.log('Request Headers:');
+   for (const [key, value] of request.headers.entries()) {
+      console.log(`${key}: ${value}`);
+   }
   const ctx = establishContext(env);
   if (!ctx.isValid) {
     console.error(`CONTEXT ERROR: Unable to establish context; check environmental values and secrets`);
