@@ -171,17 +171,22 @@ var extractToken = (ctx, request) => {
   return request.headers.get(ctx.approovTokenHeaderName);
 };
 var validateToken = async (ctx, token) => {
-  if (!ctx || !token) return false;
+  if (!ctx || !token) return { valid: false, reason: "No context or token" };
   const { header } = index_default.decode(token);
-  if (!header || !header.alg) return false;
+  if (!header || !header.alg) return { valid: false, reason: "No header or alg" };
   const allowedAlgorithms = ["ES256", "HS256"];
   const algorithm = header.alg;
   if (!allowedAlgorithms.includes(algorithm)) {
-    console.error(`AUTH FAILURE: Unsupported JWT algorithm: ${algorithm}`);
-    return false;
+    return { valid: false, reason: `Unsupported JWT algorithm: ${algorithm}` };
   }
-  const options = { algorithm, throwError: false };
-  return await index_default.verify(token, ctx.approovSecret, options);
+  const options = { algorithm, throwError: true };
+  try {
+    const result = await index_default.verify(token, ctx.approovSecret, options);
+    if (!result) return { valid: false, reason: "Unknown verification failure" };
+    return { valid: true };
+  } catch (err) {
+    return { valid: false, reason: err && err.message ? err.message : String(err) };
+  }
 };
 var extractBinding = (ctx, request) => {
   return request.headers.get(ctx.approovBindingHeaderName);
@@ -216,9 +221,9 @@ var handleRequest = async (request, env) => {
     return new Response("unauthorized", { status: 401 });
   }
 
-  let isAuthorized = await validateToken(ctx, approovToken);
-  if (!isAuthorized) {
-    console.error(`AUTH FAILURE: Approov token expired or not properly signed`);
+  const tokenResult = await validateToken(ctx, approovToken);
+  if (!tokenResult.valid) {
+    console.error(`AUTH FAILURE: ${tokenResult.reason}`);
     return new Response("unauthorized", { status: 401 });
   }
 
@@ -249,5 +254,4 @@ var index_default2 = {
 export {
   index_default2 as default
 };
-
 
