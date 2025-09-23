@@ -155,10 +155,14 @@ var establishContext = (env) => {
   if (approovSecretRaw.includes("PUBLIC KEY")) {
     approovSecret = approovSecretRaw.replace(/-----BEGIN PUBLIC KEY-----/g, "").replace(/-----END PUBLIC KEY-----/g, "").replace(/\n/g, "").trim();
   } else {
-    // Convert base64url to base64 before atob
-    let b64 = approovSecretRaw.replace(/-/g, "+").replace(/_/g, "/");
-    while (b64.length % 4) b64 += "=";
-    approovSecret = atob(b64);
+    // Accept both base64url and standard base64
+   let b64 = approovSecretRaw;
+   if (/[^A-Za-z0-9+/=]/.test(b64)) {
+     // If contains base64url chars, convert to base64
+     b64 = b64.replace(/-/g, "+").replace(/_/g, "/");
+   }
+   b64 = b64.padEnd(Math.ceil(b64.length / 4) * 4, "=");
+   approovSecret = atob(b64);
   }
   const ctx = {
     approovSecret,
