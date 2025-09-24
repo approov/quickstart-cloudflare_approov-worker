@@ -218,10 +218,10 @@ var validateBinding = async (ctx, token, binding) => {
 var handleRequest = async (request, env) => {
   // DEBUG
   // Log the request headers for debugging purposes
-  console.log('Request Headers:');
-  for (const [key, value] of request.headers.entries()) {
-    console.log(`${key}: ${value}`);
-  }
+  //console.log('Request Headers:');
+  //for (const [key, value] of request.headers.entries()) {
+    //console.log(`${key}: ${value}`);
+  //}
   // END DEBUG
   
  const ctx = establishContext(env);
