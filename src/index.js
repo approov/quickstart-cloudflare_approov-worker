@@ -228,7 +228,7 @@ var handleRequest = async (request, env) => {
  if (!ctx.isValid) {
    console.error(`CONTEXT ERROR: Unable to establish context; check environmental values and secrets`);
    return new Response(
-        JSON.stringify({ error: `SERVER ERROR: unable to establish context` }),
+        JSON.stringify({ error: `APPROOV SERVER ERROR: unable to establish context` }),
         {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
@@ -239,7 +239,7 @@ var handleRequest = async (request, env) => {
  if (!approovToken) {
    console.error(`AUTH FAILURE: Approov token not found`);
    return new Response(
-        JSON.stringify({ error: `UNAUTHORIZED: Approov token not found` }),
+        JSON.stringify({ error: `APPROOV UNAUTHORIZED: Approov token not found` }),
         {
             status: 401,
             headers: { 'Content-Type': 'application/json' }
@@ -259,7 +259,7 @@ var handleRequest = async (request, env) => {
  if (!tokenResult.valid) {
    console.error(`AUTH FAILURE: ${tokenResult.reason} arc: ${arcClaim}`);
    return new Response(
-        JSON.stringify({ error: `AUTH FAILURE: ${tokenResult.reason} arc: ${arcClaim}` }),
+        JSON.stringify({ error: `APPROOV AUTH FAILURE: ${tokenResult.reason}`, arc: `${arcClaim}` }),
         {
             status: 401,
             headers: { 'Content-Type': 'application/json' }
@@ -272,7 +272,7 @@ var handleRequest = async (request, env) => {
    if (!isAuthorized) {
      console.error(`AUTH FAILURE: Approov token binding missing or invalid`);
      return new Response(
-        JSON.stringify({ error: `AUTH FAILURE: Approov token binding missing or invalid` }),
+        JSON.stringify({ error: `APPROOV AUTH FAILURE: Approov token binding missing or invalid` }),
         {
             status: 401,
             headers: { 'Content-Type': 'application/json' }
