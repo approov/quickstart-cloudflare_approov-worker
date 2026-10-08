@@ -1,3 +1,19 @@
+> [!WARNING]
+> **This quickstart is out of date. Please contact us for the latest Approov Cloudflare Worker.**
+>
+> This repository contains an early version of the Approov Cloudflare Worker and is no longer maintained. It remains here for reference only, and we don't recommend it for new integrations.
+>
+> We've rewritten the Worker since this version was published. The current version includes:
+>
+> - **Observe mode** – see which requests Approov would block before you turn blocking on
+> - **Simpler setup** – load your keys from a single Approov CLI export, instead of configuring secrets by hand
+> - **Results passed to your backend** – each request's Approov result is forwarded for logging and analysis
+>
+> The Worker is updated frequently, so the best way to get the latest code and setup guidance is to get in touch:
+>
+> 📧 **[support@approov.io](mailto:support@approov.io)**
+>
+> If you're already using this version, we'd be happy to help you move to the latest release.
 # Approov Quickstart - Cloudflare Worker
 
 [Approov](https://approov.io) is an API security solution used to verify that requests received by your backend services originate from trusted versions of your mobile apps.
